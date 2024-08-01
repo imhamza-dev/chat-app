@@ -4,8 +4,6 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Chat App</title>
-		<link rel="stylesheet" href="styles.css" />
-
 		<style>
 			body {
 				font-family: Arial, sans-serif;
@@ -80,6 +78,18 @@
 					'register-password-confirmation'
 				).value;
 
+				const validEmails = ['user01@gmail.com', 'user02@gmail.com'];
+
+				if (!validEmails.includes(email)) {
+					alert('Invalid email!');
+					return;
+				}
+
+				if (password !== 'password') {
+					alert('Invalid password! Use password');
+					return;
+				}
+
 				if (password !== passwordConfirmation) {
 					alert('Passwords do not match!');
 					return;
@@ -112,17 +122,32 @@
 
 			const sendMessage = () => {
 				const messageInput = document.getElementById('message').value;
-				// if (messageInput.trim() !== '') {
-				// 	const messageList = document.getElementById('message-list');
-				// 	const li = document.createElement('li');
-				// 	li.textContent = messageInput;
-				// 	li.style.backgroundColor = 'blue';
-				// 	li.style.color = 'white';
-				// 	messageList.appendChild(li);
-				// 	document.getElementById('message').value = '';
-				// }
-				if (messageInput === '') {
+				const messageOutput = document.getElementById('messageOutput');
+
+				if (messageInput.trim() === '') {
 					messageOutput.textContent = 'No message found';
+				} else {
+					const messageList = document.getElementById('message-list');
+					const li = document.createElement('li');
+					li.textContent = messageInput;
+					if (
+						document
+							.getElementById('user-email')
+							.innerText.includes('user01@gmail.com')
+					) {
+						li.style.backgroundColor = 'blue';
+						li.style.color = 'white';
+					} else if (
+						document
+							.getElementById('user-email')
+							.innerText.includes('user02@gmail.com')
+					) {
+						li.style.backgroundColor = 'red';
+						li.style.color = 'white';
+					}
+					messageList.appendChild(li);
+					document.getElementById('message').value = '';
+					messageOutput.textContent = '';
 				}
 			};
 		</script>
