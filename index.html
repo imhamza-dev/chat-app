@@ -4,10 +4,6 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Chat App</title>
-		<!-- Firebase SDK -->
-		<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-		<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-		<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 		<link rel="stylesheet" href="styles.css" />
 
 		<style>
@@ -15,7 +11,8 @@
 				font-family: Arial, sans-serif;
 			}
 
-			#auth-container,
+			#register-container,
+			#login-container,
 			#chat-container {
 				margin: 0 auto;
 				max-width: 400px;
@@ -27,6 +24,7 @@
 				padding: 10px;
 				width: 100%;
 			}
+
 			button {
 				margin: 10px 0;
 				padding: 10px;
@@ -39,15 +37,10 @@
 				margin: 5px 0;
 				border-radius: 5px;
 			}
-
-			input:focus {
-				outline: none;
-			}
 		</style>
 	</head>
-
 	<body>
-		<div id="auth-container">
+		<div id="register-container">
 			<h1>Register Page</h1>
 			<input type="email" id="register-email" placeholder="Email" />
 			<input type="password" id="register-password" placeholder="Password" />
@@ -57,7 +50,9 @@
 				placeholder="Confirm Password"
 			/>
 			<button onclick="register()">Register</button>
+		</div>
 
+		<div id="login-container" style="display: none">
 			<h1>Login Page</h1>
 			<input type="email" id="login-email" placeholder="Email" />
 			<input type="password" id="login-password" placeholder="Password" />
@@ -73,5 +68,59 @@
 			<input type="text" id="message" placeholder="Type a message" />
 			<button onclick="sendMessage()">Send</button>
 		</div>
+
+		<script>
+			let users = [];
+
+			const register = () => {
+				const email = document.getElementById('register-email').value;
+				const password = document.getElementById('register-password').value;
+				const passwordConfirmation = document.getElementById(
+					'register-password-confirmation'
+				).value;
+
+				if (password !== passwordConfirmation) {
+					alert('Passwords do not match!');
+					return;
+				}
+
+				users.push({ email, password });
+				alert('User registered successfully!');
+				document.getElementById('register-container').style.display = 'none';
+				document.getElementById('login-container').style.display = 'block';
+			};
+
+			const login = () => {
+				const email = document.getElementById('login-email').value;
+				const password = document.getElementById('login-password').value;
+
+				const user = users.find(
+					(user) => user.email === email && user.password === password
+				);
+
+				if (user) {
+					document.getElementById('login-container').style.display = 'none';
+					document.getElementById('chat-container').style.display = 'block';
+					document.getElementById(
+						'user-email'
+					).innerText = `Logged in as ${email}`;
+				} else {
+					alert('Invalid email or password!');
+				}
+			};
+
+			const sendMessage = () => {
+				const messageInput = document.getElementById('message').value;
+				if (messageInput.trim() !== '') {
+					const messageList = document.getElementById('message-list');
+					const li = document.createElement('li');
+					li.textContent = messageInput;
+					li.style.backgroundColor = 'blue';
+					li.style.color = 'white';
+					messageList.appendChild(li);
+					document.getElementById('message').value = '';
+				}
+			};
+		</script>
 	</body>
 </html>
