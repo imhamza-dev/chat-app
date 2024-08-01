@@ -67,6 +67,7 @@
 			</div>
 			<input type="text" id="message" placeholder="Type a message" />
 			<button onclick="sendMessage()">Send</button>
+			<h3 id="messageOutput"></h3>
 		</div>
 
 		<script>
@@ -109,18 +110,21 @@
 				}
 			};
 
-			// const sendMessage = () => {
-			// 	const messageInput = document.getElementById('message').value;
-			// 	if (messageInput.trim() !== '') {
-			// 		const messageList = document.getElementById('message-list');
-			// 		const li = document.createElement('li');
-			// 		li.textContent = messageInput;
-			// 		li.style.backgroundColor = 'blue';
-			// 		li.style.color = 'white';
-			// 		messageList.appendChild(li);
-			// 		document.getElementById('message').value = '';
-			// 	}
-			// };
+			const sendMessage = () => {
+				const messageInput = document.getElementById('message').value;
+				// if (messageInput.trim() !== '') {
+				// 	const messageList = document.getElementById('message-list');
+				// 	const li = document.createElement('li');
+				// 	li.textContent = messageInput;
+				// 	li.style.backgroundColor = 'blue';
+				// 	li.style.color = 'white';
+				// 	messageList.appendChild(li);
+				// 	document.getElementById('message').value = '';
+				// }
+				if (messageInput === '') {
+					messageOutput.textContent = 'No message found';
+				}
+			};
 		</script>
 	</body>
 </html>
