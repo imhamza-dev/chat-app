@@ -4,68 +4,152 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Chat App</title>
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+		/>
 		<style>
-			body {
-				font-family: Arial, sans-serif;
+			.container {
+				margin-top: 50px;
 			}
-
-			#register-container,
-			#login-container,
-			#chat-container {
-				margin: 0 auto;
-				max-width: 400px;
-				text-align: center;
+			.card {
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 			}
-
-			input {
-				margin: 10px 0;
-				padding: 10px;
-				width: 100%;
+			.message-user01 {
+				background-color: blue;
+				color: white;
 			}
-
-			button {
-				margin: 10px 0;
-				padding: 10px;
-				width: 106%;
+			.message-user02 {
+				background-color: red;
+				color: white;
 			}
-
+			#message-list {
+				max-height: 700px;
+				overflow-y: auto;
+				margin-top: 10px;
+			}
 			#message-list li {
 				list-style-type: none;
 				padding: 10px;
 				margin: 5px 0;
 				border-radius: 5px;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			}
+			#no-messages {
+				font-style: italic;
+				color: #777;
 			}
 		</style>
 	</head>
 	<body>
-		<div id="register-container">
-			<h1>Register Page</h1>
-			<input type="email" id="register-email" placeholder="Email" />
-			<input type="password" id="register-password" placeholder="Password" />
-			<input
-				type="password"
-				id="register-password-confirmation"
-				placeholder="Confirm Password"
-			/>
-			<button onclick="register()">Register</button>
-		</div>
-
-		<div id="login-container" style="display: none">
-			<h1>Login Page</h1>
-			<input type="email" id="login-email" placeholder="Email" />
-			<input type="password" id="login-password" placeholder="Password" />
-			<button onclick="login()">Login</button>
-		</div>
-
-		<div id="chat-container" style="display: none">
-			<h1 id="user-email"></h1>
-			<div id="messages">
-				<h3 id="no-messages" style="display: none">No Message found</h3>
-				<ul id="message-list" style="max-height: 400px; overflow-y: auto"></ul>
+		<div id="register-container" class="container">
+			<div class="card">
+				<div class="card-body">
+					<h1 class="card-title text-center">Register Page</h1>
+					<form>
+						<div class="form-group">
+							<input
+								type="email"
+								id="register-email"
+								class="form-control"
+								placeholder="Email"
+								value="user01@gmail.com"
+							/>
+						</div>
+						<div class="form-group">
+							<input
+								type="password"
+								id="register-password"
+								class="form-control"
+								placeholder="Password"
+								value="password"
+							/>
+						</div>
+						<div class="form-group">
+							<input
+								type="password"
+								id="register-password-confirmation"
+								class="form-control"
+								placeholder="Confirm Password"
+								value="password"
+							/>
+						</div>
+						<button
+							type="button"
+							class="btn btn-primary btn-block"
+							onclick="register()"
+						>
+							Register
+						</button>
+					</form>
+				</div>
 			</div>
-			<input type="text" id="message" placeholder="Type a message" />
-			<button onclick="sendMessage()">Send</button>
-			<h3 id="messageOutput"></h3>
+		</div>
+
+		<div id="login-container" class="container" style="display: none">
+			<div class="card">
+				<div class="card-body">
+					<h1 class="card-title text-center">Login Page</h1>
+					<form>
+						<div class="form-group">
+							<input
+								type="email"
+								id="login-email"
+								class="form-control"
+								placeholder="Email"
+								value="user01@gmail.com"
+							/>
+						</div>
+						<div class="form-group">
+							<input
+								type="password"
+								id="login-password"
+								class="form-control"
+								placeholder="Password"
+								value="password"
+							/>
+						</div>
+						<button
+							type="button"
+							class="btn btn-primary btn-block"
+							onclick="login()"
+						>
+							Login
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div id="chat-container" class="container" style="display: none">
+			<div class="card">
+				<div class="card-body">
+					<h1 id="user-email" class="card-title text-center"></h1>
+					<div id="messages">
+						<h3 id="no-messages" style="display: none">No Message found</h3>
+						<ul id="message-list" class="list-group"></ul>
+					</div>
+					<div class="input-group mt-3">
+						<input
+							type="text"
+							id="message"
+							class="form-control"
+							placeholder="Type a message"
+							value="hi there i m hamza"
+						/>
+						<div class="input-group-append">
+							<button
+								class="btn btn-primary"
+								type="button"
+								onclick="sendMessage()"
+							>
+								Send
+							</button>
+						</div>
+					</div>
+					<h3 id="messageOutput" class="text-center mt-3"></h3>
+				</div>
+			</div>
 		</div>
 
 		<script>
@@ -96,7 +180,7 @@
 				}
 
 				users.push({ email, password });
-				alert('User registered successfully!');
+				// alert('User registered successfully!');
 				document.getElementById('register-container').style.display = 'none';
 				document.getElementById('login-container').style.display = 'block';
 			};
@@ -130,20 +214,19 @@
 					const messageList = document.getElementById('message-list');
 					const li = document.createElement('li');
 					li.textContent = messageInput;
+					li.classList.add('list-group-item');
 					if (
 						document
 							.getElementById('user-email')
 							.innerText.includes('user01@gmail.com')
 					) {
-						li.style.backgroundColor = 'blue';
-						li.style.color = 'white';
+						li.classList.add('message-user01');
 					} else if (
 						document
 							.getElementById('user-email')
 							.innerText.includes('user02@gmail.com')
 					) {
-						li.style.backgroundColor = 'red';
-						li.style.color = 'white';
+						li.classList.add('message-user02');
 					}
 					messageList.appendChild(li);
 					document.getElementById('message').value = '';
