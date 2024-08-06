@@ -10,38 +10,66 @@
 		/>
 		<style>
 			body {
-				background-color: oldlace;
+				background-color: #f8f9fa;
+				font-family: Arial, sans-serif;
 			}
-
 			.container {
 				margin-top: 50px;
 			}
 			.card {
-				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+				box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 			}
 			.message-user01 {
-				background-color: blue;
+				background-color: #007bff;
 				color: white;
-			}
-			.message-user02 {
-				background-color: red;
-				color: white;
-			}
-			#message-list {
-				max-height: 700px;
-				overflow-y: auto;
-				margin-top: 10px;
-			}
-			#message-list li {
-				list-style-type: none;
-				padding: 10px;
-				margin: 5px 0;
 				border-radius: 5px;
+				padding: 10px;
+				margin-bottom: 10px;
 				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 			}
-			#no-messages {
+			.message-user02 {
+				background-color: #dc3545;
+				color: white;
+				border-radius: 5px;
+				padding: 10px;
+				margin-bottom: 10px;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			}
+			#message-list,
+			#other-message-list {
+				max-height: 400px;
+				overflow-y: auto;
+				margin-top: 10px;
+				padding: 10px;
+				border: 1px solid #ccc;
+				border-radius: 5px;
+				background-color: #ffffff;
+			}
+			#no-messages,
+			#no-other-messages {
 				font-style: italic;
 				color: #777;
+			}
+			#chat-container {
+				display: flex;
+				justify-content: space-between;
+			}
+			.chat-column {
+				flex: 1;
+				padding: 10px;
+			}
+			.input-group {
+				margin-top: 10px;
+			}
+			.modal-header {
+				background-color: #007bff;
+				color: white;
+			}
+			.modal-footer {
+				border-top: none;
+			}
+			.login-button {
+				margin-top: 10px;
 			}
 		</style>
 	</head>
@@ -52,13 +80,10 @@
 					<h1 class="card-title text-center">Register Page</h1>
 					<form>
 						<div class="form-group">
-							<input
-								type="email"
-								id="register-email"
-								class="form-control"
-								placeholder="Email"
-								value="user01@gmail.com"
-							/>
+							<select id="register-email" class="form-control">
+								<option value="user01@gmail.com">user01@gmail.com</option>
+								<option value="user02@gmail.com">user02@gmail.com</option>
+							</select>
 						</div>
 						<div class="form-group">
 							<input
@@ -68,6 +93,17 @@
 								placeholder="Password"
 								value="password"
 							/>
+							<div class="form-check">
+								<input
+									type="checkbox"
+									id="register-show-password"
+									class="form-check-input"
+									onclick="togglePasswordVisibility('register')"
+								/>
+								<label for="register-show-password" class="form-check-label">
+									Show Password
+								</label>
+							</div>
 						</div>
 						<div class="form-group">
 							<input
@@ -77,6 +113,20 @@
 								placeholder="Confirm Password"
 								value="password"
 							/>
+							<div class="form-check">
+								<input
+									type="checkbox"
+									id="register-show-password-confirmation"
+									class="form-check-input"
+									onclick="togglePasswordVisibility('register')"
+								/>
+								<label
+									for="register-show-password-confirmation"
+									class="form-check-label"
+								>
+									Show Confirm Password
+								</label>
+							</div>
 						</div>
 						<button
 							type="button"
@@ -90,74 +140,151 @@
 			</div>
 		</div>
 
-		<div id="login-container" class="container" style="display: none">
-			<div class="card">
-				<div class="card-body">
-					<h1 class="card-title text-center">Login Page</h1>
-					<form>
-						<div class="form-group">
-							<input
-								type="email"
-								id="login-email"
-								class="form-control"
-								placeholder="Email"
-								value="user01@gmail.com"
-							/>
-						</div>
-						<div class="form-group">
-							<input
-								type="password"
-								id="login-password"
-								class="form-control"
-								placeholder="Password"
-								value="password"
-							/>
-						</div>
-						<button
-							type="button"
-							class="btn btn-primary btn-block"
-							onclick="login()"
-						>
-							Login
-						</button>
-					</form>
-				</div>
-			</div>
-		</div>
-
 		<div id="chat-container" class="container" style="display: none">
 			<div class="card">
 				<div class="card-body">
 					<h1 id="user-email" class="card-title text-center"></h1>
-					<div id="messages">
-						<h3 id="no-messages" style="display: none">No Message found</h3>
-						<ul id="message-list" class="list-group"></ul>
-					</div>
-					<div class="input-group mt-3">
-						<input
-							type="text"
-							id="message"
-							class="form-control"
-							placeholder="Type a message"
-							value="hi there i m hamza"
-						/>
-						<div class="input-group-append">
-							<button
-								class="btn btn-primary"
-								type="button"
-								onclick="sendMessage()"
-							>
-								Send
-							</button>
+					<div id="chat-container">
+						<div id="chat-column" class="chat-column">
+							<h3>Chat with User 1</h3>
+							<h3 id="no-messages" style="display: none">No Messages found</h3>
+							<ul id="message-list" class="list-group"></ul>
+							<div class="input-group mt-3">
+								<input
+									type="text"
+									id="message"
+									class="form-control"
+									placeholder="Type a message"
+								/>
+								<div class="input-group-append">
+									<button
+										class="btn btn-primary"
+										type="button"
+										onclick="sendMessage()"
+									>
+										Send
+									</button>
+								</div>
+							</div>
+						</div>
+						<div
+							id="other-chat-column"
+							class="chat-column"
+							style="display: none"
+						>
+							<h3>Chat with User 2</h3>
+							<h3 id="no-other-messages" style="display: none">
+								No Messages found
+							</h3>
+							<ul id="other-message-list" class="list-group"></ul>
+							<div class="input-group mt-3">
+								<input
+									type="text"
+									id="other-message"
+									class="form-control"
+									placeholder="Type a message"
+								/>
+								<div class="input-group-append">
+									<button
+										class="btn btn-primary"
+										type="button"
+										onclick="sendOtherMessage()"
+									>
+										Send
+									</button>
+								</div>
+							</div>
 						</div>
 					</div>
-					<h3 id="messageOutput" class="text-center mt-3"></h3>
+					<button class="btn btn-info btn-block mt-3" onclick="showLoginForm()">
+						Login with other email
+					</button>
 				</div>
 			</div>
 		</div>
 
+		<!-- Modal for login -->
+		<div
+			class="modal fade"
+			id="loginModal"
+			tabindex="-1"
+			role="dialog"
+			aria-labelledby="loginModalLabel"
+			aria-hidden="true"
+		>
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="loginModalLabel">
+							Login with Other Email
+						</h5>
+						<button
+							type="button"
+							class="close"
+							data-dismiss="modal"
+							aria-label="Close"
+						>
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form>
+							<div class="form-group">
+								<input
+									type="email"
+									id="login-email"
+									class="form-control"
+									placeholder="Email"
+								/>
+							</div>
+							<div class="form-group">
+								<input
+									type="password"
+									id="login-password"
+									class="form-control"
+									placeholder="Password"
+								/>
+								<div class="form-check">
+									<input
+										type="checkbox"
+										id="login-show-password"
+										class="form-check-input"
+										onclick="togglePasswordVisibility('login')"
+									/>
+									<label for="login-show-password" class="form-check-label">
+										Show Password
+									</label>
+								</div>
+							</div>
+							<button
+								type="button"
+								class="btn btn-primary btn-block"
+								onclick="login()"
+							>
+								Login
+							</button>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-dismiss="modal"
+						>
+							Close
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 		<script>
 			let users = [];
+			let currentUserEmail = '';
+			let otherUserEmail = '';
 
 			const register = () => {
 				const email = document.getElementById('register-email').value;
@@ -166,76 +293,127 @@
 					'register-password-confirmation'
 				).value;
 
-				const validEmails = ['user01@gmail.com', 'user02@gmail.com'];
-
-				if (!validEmails.includes(email)) {
-					alert('Invalid email!');
+				let validPassword;
+				if (email === 'user01@gmail.com') {
+					validPassword = 'password';
+				} else if (email === 'user02@gmail.com') {
+					validPassword = 'password2';
+				} else {
+					alert('Invalid email');
 					return;
 				}
 
-				if (password !== 'password') {
-					alert('Invalid password! Use password');
+				if (
+					password !== validPassword ||
+					passwordConfirmation !== validPassword
+				) {
+					alert('Password is incorrect or passwords do not match');
 					return;
 				}
 
-				if (password !== passwordConfirmation) {
-					alert('Passwords do not match!');
-					return;
+				if (!users.includes(email)) {
+					users.push(email);
 				}
+				if (email === 'user01@gmail.com') {
+					currentUserEmail = 'user01@gmail.com';
+					otherUserEmail = 'user02@gmail.com';
+				} else if (email === 'user02@gmail.com') {
+					currentUserEmail = 'user02@gmail.com';
+					otherUserEmail = 'user01@gmail.com';
+				}
+				showChat();
+			};
 
-				users.push({ email, password });
-				// alert('User registered successfully!');
+			const showChat = () => {
 				document.getElementById('register-container').style.display = 'none';
-				document.getElementById('login-container').style.display = 'block';
+				document.getElementById('chat-container').style.display = 'block';
+
+				document.getElementById(
+					'user-email'
+				).innerText = `Logged in as ${currentUserEmail}`;
+
+				if (currentUserEmail === 'user01@gmail.com') {
+					document.getElementById('other-chat-column').style.display = 'block';
+				} else {
+					document.getElementById('other-chat-column').style.display = 'none';
+				}
+
+				if (currentUserEmail === 'user02@gmail.com') {
+					document.getElementById('chat-column').style.display = 'block';
+				} else {
+					document.getElementById('chat-column').style.display = 'none';
+				}
+
+				if (users.length === 0) {
+					document.getElementById('register-container').style.display = 'block';
+					document.getElementById('chat-container').style.display = 'none';
+				}
+			};
+
+			const sendMessage = () => {
+				const message = document.getElementById('message').value;
+				if (message) {
+					const li = document.createElement('li');
+					li.classList.add('message-user01');
+					li.textContent = message;
+					document.getElementById('message-list').appendChild(li);
+					document.getElementById('message').value = '';
+					document.getElementById('no-messages').style.display = 'none';
+				}
+			};
+
+			const sendOtherMessage = () => {
+				const message = document.getElementById('other-message').value;
+				if (message) {
+					const li = document.createElement('li');
+					li.classList.add('message-user02');
+					li.textContent = message;
+					document.getElementById('other-message-list').appendChild(li);
+					document.getElementById('other-message').value = '';
+				}
+			};
+
+			const showLoginForm = () => {
+				$('#loginModal').modal('show');
 			};
 
 			const login = () => {
 				const email = document.getElementById('login-email').value;
 				const password = document.getElementById('login-password').value;
 
-				const user = users.find(
-					(user) => user.email === email && user.password === password
-				);
-
-				if (user) {
-					document.getElementById('login-container').style.display = 'none';
-					document.getElementById('chat-container').style.display = 'block';
-					document.getElementById(
-						'user-email'
-					).innerText = `Logged in as ${email}`;
+				let validPassword;
+				if (email === 'user01@gmail.com') {
+					validPassword = 'password';
+				} else if (email === 'user02@gmail.com') {
+					validPassword = 'password2';
 				} else {
-					alert('Invalid email or password!');
+					alert('Invalid email');
+					return;
 				}
+
+				if (password !== validPassword) {
+					alert('Password is incorrect');
+					return;
+				}
+
+				if (!users.includes(email)) {
+					users.push(email);
+				}
+				if (email === 'user01@gmail.com') {
+					currentUserEmail = 'user01@gmail.com';
+					otherUserEmail = 'user02@gmail.com';
+				} else if (email === 'user02@gmail.com') {
+					currentUserEmail = 'user02@gmail.com';
+					otherUserEmail = 'user01@gmail.com';
+				}
+				$('#loginModal').modal('hide');
+				showChat();
 			};
 
-			const sendMessage = () => {
-				const messageInput = document.getElementById('message').value;
-				const messageOutput = document.getElementById('messageOutput');
-
-				if (messageInput.trim() === '') {
-					messageOutput.textContent = 'No message found';
-				} else {
-					const messageList = document.getElementById('message-list');
-					const li = document.createElement('li');
-					li.textContent = messageInput;
-					li.classList.add('list-group-item');
-					if (
-						document
-							.getElementById('user-email')
-							.innerText.includes('user01@gmail.com')
-					) {
-						li.classList.add('message-user01');
-					} else if (
-						document
-							.getElementById('user-email')
-							.innerText.includes('user02@gmail.com')
-					) {
-						li.classList.add('message-user02');
-					}
-					messageList.appendChild(li);
-					document.getElementById('message').value = '';
-					messageOutput.textContent = '';
-				}
+			const togglePasswordVisibility = (type) => {
+				const passwordInput = document.getElementById(`${type}-password`);
+				const checkbox = document.getElementById(`${type}-show-password`);
+				passwordInput.type = checkbox.checked ? 'text' : 'password';
 			};
 		</script>
 	</body>
