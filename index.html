@@ -91,7 +91,6 @@
 								id="register-password"
 								class="form-control"
 								placeholder="Password"
-								value="password"
 							/>
 							<div class="form-check">
 								<input
@@ -100,9 +99,9 @@
 									class="form-check-input"
 									onclick="togglePasswordVisibility('register')"
 								/>
-								<label for="register-show-password" class="form-check-label">
-									Show Password
-								</label>
+								<label for="register-show-password" class="form-check-label"
+									>Show Password</label
+								>
 							</div>
 						</div>
 						<div class="form-group">
@@ -111,7 +110,6 @@
 								id="register-password-confirmation"
 								class="form-control"
 								placeholder="Confirm Password"
-								value="password"
 							/>
 							<div class="form-check">
 								<input
@@ -123,9 +121,8 @@
 								<label
 									for="register-show-password-confirmation"
 									class="form-check-label"
+									>Show Confirm Password</label
 								>
-									Show Confirm Password
-								</label>
 							</div>
 						</div>
 						<button
@@ -199,6 +196,9 @@
 					<button class="btn btn-info btn-block mt-3" onclick="showLoginForm()">
 						Login with other email
 					</button>
+					<button class="btn btn-danger btn-block mt-3" onclick="signOut()">
+						Sign Out
+					</button>
 				</div>
 			</div>
 		</div>
@@ -251,9 +251,9 @@
 										class="form-check-input"
 										onclick="togglePasswordVisibility('login')"
 									/>
-									<label for="login-show-password" class="form-check-label">
-										Show Password
-									</label>
+									<label for="login-show-password" class="form-check-label"
+										>Show Password</label
+									>
 								</div>
 							</div>
 							<button
@@ -281,8 +281,25 @@
 		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
 		<script>
-			let users = [];
+			// Your web app's Firebase configuration
+			var firebaseConfig = {
+				apiKey: 'AIzaSyAEpJuMi9r5hDIsEOB9V9xgrIt_B_yNwjM',
+				authDomain: 'zaionsofficial.firebaseapp.com',
+				databaseURL:
+					'https://zaionsofficial-default-rtdb.asia-southeast1.firebasedatabase.app',
+				projectId: 'zaionsofficial',
+				storageBucket: 'zaionsofficial.appspot.com',
+				messagingSenderId: '22162925133',
+				appId: '1:22162925133:web:8ee40b67447aabdf675e04',
+				measurementId: 'G-90WLRRESC5',
+			};
+			// Initialize Firebase
+			firebase.initializeApp(firebaseConfig);
+
 			let currentUserEmail = '';
 			let otherUserEmail = '';
 
@@ -293,83 +310,127 @@
 					'register-password-confirmation'
 				).value;
 
-				let validPassword;
-				if (email === 'user01@gmail.com') {
-					validPassword = 'password';
-				} else if (email === 'user02@gmail.com') {
-					validPassword = 'password2';
-				} else {
-					alert('Invalid email');
+				if (password !== passwordConfirmation) {
+					alert('Passwords do not match');
 					return;
 				}
 
-				if (
-					password !== validPassword ||
-					passwordConfirmation !== validPassword
-				) {
-					alert('Password is incorrect or passwords do not match');
-					return;
-				}
-
-				if (!users.includes(email)) {
-					users.push(email);
-				}
-				if (email === 'user01@gmail.com') {
-					currentUserEmail = 'user01@gmail.com';
-					otherUserEmail = 'user02@gmail.com';
-				} else if (email === 'user02@gmail.com') {
-					currentUserEmail = 'user02@gmail.com';
-					otherUserEmail = 'user01@gmail.com';
-				}
-				showChat();
+				firebase
+					.auth()
+					.createUserWithEmailAndPassword(email, password)
+					.then((userCredential) => {
+						var user = userCredential.user;
+						alert('Registration successful');
+						showChat();
+					})
+					.catch((error) => {
+						var errorCode = error.code;
+						var errorMessage = error.message;
+						alert(errorMessage);
+					});
 			};
 
-			const showChat = () => {
-				document.getElementById('register-container').style.display = 'none';
-				document.getElementById('chat-container').style.display = 'block';
+			const login = () => {
+				const email = document.getElementById('login-email').value;
+				const password = document.getElementById('login-password').value;
 
-				document.getElementById(
-					'user-email'
-				).innerText = `Logged in as ${currentUserEmail}`;
-
-				if (currentUserEmail === 'user01@gmail.com') {
-					document.getElementById('other-chat-column').style.display = 'block';
-				} else {
-					document.getElementById('other-chat-column').style.display = 'none';
-				}
-
-				if (currentUserEmail === 'user02@gmail.com') {
-					document.getElementById('chat-column').style.display = 'block';
-				} else {
-					document.getElementById('chat-column').style.display = 'none';
-				}
-
-				if (users.length === 0) {
-					document.getElementById('register-container').style.display = 'block';
-					document.getElementById('chat-container').style.display = 'none';
-				}
+				firebase
+					.auth()
+					.signInWithEmailAndPassword(email, password)
+					.then((userCredential) => {
+						var user = userCredential.user;
+						alert('Login successful');
+						$('#loginModal').modal('hide');
+						showChat();
+					})
+					.catch((error) => {
+						var errorCode = error.code;
+						var errorMessage = error.message;
+						alert(errorMessage);
+					});
 			};
 
 			const sendMessage = () => {
 				const message = document.getElementById('message').value;
 				if (message) {
-					const li = document.createElement('li');
-					li.classList.add('message-user01');
-					li.textContent = message;
-					document.getElementById('message-list').appendChild(li);
+					firebase.database().ref('messages').push({
+						email: firebase.auth().currentUser.email,
+						message: message,
+					});
 					document.getElementById('message').value = '';
-					document.getElementById('no-messages').style.display = 'none';
 				}
 			};
 
 			const sendOtherMessage = () => {
 				const message = document.getElementById('other-message').value;
 				if (message) {
-					const li = document.createElement('li');
-					li.classList.add('message-user02');
-					li.textContent = message;
-					document.getElementById('other-message-list').appendChild(li);
+					firebase.database().ref('messages').push({
+						email: firebase.auth().currentUser.email,
+						message: message,
+					});
 					document.getElementById('other-message').value = '';
+				}
+			};
+
+			firebase
+				.database()
+				.ref('messages')
+				.on('child_added', (snapshot) => {
+					const messageData = snapshot.val();
+					const li = document.createElement('li');
+					li.textContent = messageData.message;
+					if (messageData.email === 'user01@gmail.com') {
+						li.classList.add('message-user01');
+						document.getElementById('message-list').appendChild(li);
+						document.getElementById('no-messages').style.display = 'none';
+					} else if (messageData.email === 'user02@gmail.com') {
+						li.classList.add('message-user02');
+						document.getElementById('other-message-list').appendChild(li);
+						document.getElementById('no-other-messages').style.display = 'none';
+					}
+				});
+
+			firebase.auth().onAuthStateChanged((user) => {
+				if (user) {
+					currentUserEmail = user.email;
+					otherUserEmail =
+						currentUserEmail === 'user01@gmail.com'
+							? 'user02@gmail.com'
+							: 'user01@gmail.com';
+					showChat();
+				} else {
+					document.getElementById('register-container').style.display = 'block';
+					document.getElementById('chat-container').style.display = 'none';
+				}
+			});
+
+			const signOut = () => {
+				firebase
+					.auth()
+					.signOut()
+					.then(() => {
+						alert('Sign-out successful');
+						document.getElementById('register-container').style.display =
+							'block';
+						document.getElementById('chat-container').style.display = 'none';
+					})
+					.catch((error) => {
+						alert(error.message);
+					});
+			};
+
+			const showChat = () => {
+				document.getElementById('register-container').style.display = 'none';
+				document.getElementById('chat-container').style.display = 'block';
+				document.getElementById(
+					'user-email'
+				).textContent = `Logged in as: ${currentUserEmail}`;
+				if (currentUserEmail === 'user01@gmail.com') {
+					document.getElementById('chat-column').style.display = 'block';
+					document.getElementById('other-chat-column').style.display = 'none';
+				} else {
+					document.getElementById('chat-column').style.display = 'none';
+					document.getElementById('other-chat-column').style.display = 'block';
 				}
 			};
 
@@ -377,43 +438,17 @@
 				$('#loginModal').modal('show');
 			};
 
-			const login = () => {
-				const email = document.getElementById('login-email').value;
-				const password = document.getElementById('login-password').value;
-
-				let validPassword;
-				if (email === 'user01@gmail.com') {
-					validPassword = 'password';
-				} else if (email === 'user02@gmail.com') {
-					validPassword = 'password2';
-				} else {
-					alert('Invalid email');
-					return;
+			const togglePasswordVisibility = (formType) => {
+				const passwordField = document.getElementById(`${formType}-password`);
+				const confirmPasswordField = document.getElementById(
+					`${formType}-password-confirmation`
+				);
+				const passwordFieldType =
+					passwordField.type === 'password' ? 'text' : 'password';
+				passwordField.type = passwordFieldType;
+				if (confirmPasswordField) {
+					confirmPasswordField.type = passwordFieldType;
 				}
-
-				if (password !== validPassword) {
-					alert('Password is incorrect');
-					return;
-				}
-
-				if (!users.includes(email)) {
-					users.push(email);
-				}
-				if (email === 'user01@gmail.com') {
-					currentUserEmail = 'user01@gmail.com';
-					otherUserEmail = 'user02@gmail.com';
-				} else if (email === 'user02@gmail.com') {
-					currentUserEmail = 'user02@gmail.com';
-					otherUserEmail = 'user01@gmail.com';
-				}
-				$('#loginModal').modal('hide');
-				showChat();
-			};
-
-			const togglePasswordVisibility = (type) => {
-				const passwordInput = document.getElementById(`${type}-password`);
-				const checkbox = document.getElementById(`${type}-show-password`);
-				passwordInput.type = checkbox.checked ? 'text' : 'password';
 			};
 		</script>
 	</body>
