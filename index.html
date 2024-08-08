@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -8,6 +7,7 @@
 			rel="stylesheet"
 			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
 		/>
+
 		<style>
 			body {
 				background-color: #f8f9fa;
@@ -45,8 +45,7 @@
 				border-radius: 5px;
 				background-color: #ffffff;
 			}
-			#no-messages,
-			#no-other-messages {
+			#no-messages {
 				font-style: italic;
 				color: #777;
 			}
@@ -255,28 +254,33 @@
 		<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
 		<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
 		<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+
 		<script>
 			// Your web app's Firebase configuration
-			var firebaseConfig = {
-				apiKey: 'AIzaSyAEpJuMi9r5hDIsEOB9V9xgrIt_B_yNwjM',
-				authDomain: 'zaionsofficial.firebaseapp.com',
-				databaseURL:
-					'https://zaionsofficial-default-rtdb.asia-southeast1.firebasedatabase.app',
-				projectId: 'zaionsofficial',
-				storageBucket: 'zaionsofficial.appspot.com',
-				messagingSenderId: '22162925133',
-				appId: '1:22162925133:web:8ee40b67447aabdf675e04',
-				measurementId: 'G-90WLRRESC5',
+			// Your Firebase configuration
+			const firebaseConfig = {
+				apiKey: 'YOUR_API_KEY',
+				authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
+				projectId: 'YOUR_PROJECT_ID',
+				storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+				messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+				appId: 'YOUR_APP_ID',
 			};
+
 			// Initialize Firebase
 			firebase.initializeApp(firebaseConfig);
 
-			let currentUserEmail = '';
+			// Reference to the messages collection
+			var messagesRef = firebase.database().ref('messages');
 
-			const register = () => {
-				const email = document.getElementById('register-email').value;
-				const password = document.getElementById('register-password').value;
-				const passwordConfirmation = document.getElementById(
+			// Save email of currently logged in user
+			var currentUserEmail = '';
+
+			// Register function
+			function register() {
+				var email = document.getElementById('register-email').value;
+				var password = document.getElementById('register-password').value;
+				var passwordConfirmation = document.getElementById(
 					'register-password-confirmation'
 				).value;
 
@@ -285,104 +289,118 @@
 					return;
 				}
 
+				// Email & Password-based Sign-up
 				firebase
 					.auth()
 					.createUserWithEmailAndPassword(email, password)
 					.then((userCredential) => {
-						const user = userCredential.user;
-						alert('Registration successful');
-						showChat();
+						// Signed up successfully
+						currentUserEmail = userCredential.user.email;
+						showChatPage();
 					})
 					.catch((error) => {
-						alert(error.message);
+						alert('Registration Error: ' + error.message);
 					});
-			};
+			}
 
-			const login = () => {
-				const email = document.getElementById('login-email').value;
-				const password = document.getElementById('login-password').value;
+			// Login function
+			function login() {
+				var email = document.getElementById('login-email').value;
+				var password = document.getElementById('login-password').value;
 
 				firebase
 					.auth()
 					.signInWithEmailAndPassword(email, password)
 					.then((userCredential) => {
-						const user = userCredential.user;
-						alert('Login successful');
-						$('#loginModal').modal('hide');
-						showChat();
+						// Signed in successfully
+						currentUserEmail = userCredential.user.email;
+						showChatPage();
+						$('#loginModal').modal('hide'); // Close modal on successful login
 					})
 					.catch((error) => {
-						alert(error.message);
+						alert('Login Error: ' + error.message);
 					});
-			};
+			}
 
-			const signOut = () => {
+			// Show chat page after login/register
+			function showChatPage() {
+				document.getElementById('register-container').style.display = 'none';
+				document.getElementById('chat-container').style.display = 'block';
+				document.getElementById('user-email').innerText = currentUserEmail;
+				loadMessages();
+			}
+
+			// Sign out function
+			function signOut() {
 				firebase
 					.auth()
 					.signOut()
 					.then(() => {
-						alert('Signed out successfully');
+						currentUserEmail = '';
 						document.getElementById('register-container').style.display =
 							'block';
 						document.getElementById('chat-container').style.display = 'none';
 					})
 					.catch((error) => {
-						alert(error.message);
+						alert('Sign Out Error: ' + error.message);
 					});
-			};
+			}
 
-			const showChat = () => {
-				document.getElementById('register-container').style.display = 'none';
-				document.getElementById('chat-container').style.display = 'block';
-				currentUserEmail = firebase.auth().currentUser.email;
-				document.getElementById('user-email').textContent = currentUserEmail;
+			// Function to load messages from the database
+			function loadMessages() {
+				messagesRef.on('child_added', function (snapshot) {
+					var message = snapshot.val();
+					displayMessage(message.sender, message.text);
+				});
+			}
 
-				// Listen for new messages
-				firebase
-					.database()
-					.ref('messages')
-					.on('child_added', (snapshot) => {
-						const messageData = snapshot.val();
-						const li = document.createElement('li');
-						li.textContent = messageData.message;
+			// Function to send message
+			function sendMessage() {
+				var message = document.getElementById('message').value;
+				if (message === '') return;
 
-						if (messageData.email === currentUserEmail) {
-							li.classList.add('message-user01');
-							document.getElementById('message-list').appendChild(li);
-							document.getElementById('no-messages').style.display = 'none';
-						} else {
-							li.classList.add('message-user02');
-							document.getElementById('other-message-list').appendChild(li);
-							document.getElementById('no-other-messages').style.display =
-								'none';
-						}
-					});
-			};
+				var newMessageRef = messagesRef.push();
+				newMessageRef.set({
+					sender: currentUserEmail,
+					text: message,
+				});
 
-			const sendMessage = () => {
-				const message = document.getElementById('message').value;
-				if (message) {
-					firebase
-						.database()
-						.ref('messages')
-						.push({
-							email: currentUserEmail,
-							message: message,
-						})
-						.then(() => {
-							document.getElementById('message').value = '';
-						})
-						.catch((error) => {
-							alert('Error sending message: ' + error.message);
-						});
+				document.getElementById('message').value = ''; // Clear the input field
+			}
+
+			// Function to display message in the chat
+			function displayMessage(sender, message) {
+				var messageList = document.getElementById('message-list');
+				var listItem = document.createElement('li');
+				listItem.classList.add(
+					'list-group-item',
+					sender === 'user01@gmail.com' ? 'message-user01' : 'message-user02'
+				);
+				listItem.innerText = sender + ': ' + message;
+				messageList.appendChild(listItem);
+
+				// Auto-scroll to the bottom
+				messageList.scrollTop = messageList.scrollHeight;
+			}
+
+			// Function to toggle password visibility
+			function togglePasswordVisibility(form) {
+				var passwordField = document.getElementById(form + '-password');
+				var confirmPasswordField = document.getElementById(
+					form + '-password-confirmation'
+				);
+				var showPasswordCheckbox = document.getElementById(
+					form + '-show-password'
+				);
+
+				if (passwordField.type === 'password') {
+					passwordField.type = 'text';
+					if (confirmPasswordField) confirmPasswordField.type = 'text';
+				} else {
+					passwordField.type = 'password';
+					if (confirmPasswordField) confirmPasswordField.type = 'password';
 				}
-			};
-
-			const togglePasswordVisibility = (type) => {
-				const passwordField = document.getElementById(type + '-password');
-				passwordField.type =
-					passwordField.type === 'password' ? 'text' : 'password';
-			};
+			}
 		</script>
 	</body>
 </html>
